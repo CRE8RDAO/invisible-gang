@@ -18,6 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Invisible Gang"
         />
         <meta name="keywords" content="" />
+        <script src="//cdn.jsdelivr.net/npm/amplifi.js@0.7.5/amplifi.min.js"></script>
       </Head>
       <Component {...pageProps} />
       <ThirdwebGuideFooter />
