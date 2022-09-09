@@ -3,7 +3,7 @@ import { ChainId, ThirdwebProvider } from "@thirdweb-dev/react";
 import "../styles/globals.css";
 import Head from "next/head";
 import ThirdwebGuideFooter from "../components/GitHubLink";
-
+import Script from "next/script";
 // This is the chainId your dApp will work on.
 const activeChainId = ChainId.Mainnet;
 
@@ -18,8 +18,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Invisible Gang"
         />
         <meta name="keywords" content="" />
-        <script src="//cdn.jsdelivr.net/npm/amplifi.js@0.7.5/amplifi.min.js"></script>
       </Head>
+      <Script
+        src="//cdn.jsdelivr.net/npm/amplifi.js@0/amplifi.min.js"
+        strategy="afterInteractive"
+      ></Script>
       <Component {...pageProps} />
       <ThirdwebGuideFooter />
     </ThirdwebProvider>
