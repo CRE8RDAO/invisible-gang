@@ -41,3 +41,7 @@ body {
 *::after {
   box-sizing: border-box;
 }
+
+button {
+  font-family: "Inter", sans-serif;
+}

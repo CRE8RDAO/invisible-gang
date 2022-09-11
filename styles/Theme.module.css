@@ -37,6 +37,10 @@
   height: 100%;
 }
 
+.infoSide h1 {
+  font-weight: 900;
+}
+
 .description {
   opacity: 0.7;
   font-size: 1rem;
@@ -80,21 +84,23 @@
   height: 3rem;
   min-width: 3rem;
   font-size: 1rem;
-  background: #e5e5ea;
-  background-image: linear-gradient(
-    to left,
-    var(--color-primary) 0%,
-    var(--color-secondary) 101.52%
+  background: rgb(125, 254, 255);
+  background: linear-gradient(
+    166deg,
+    rgba(125, 254, 255, 1) 0%,
+    rgba(0, 10, 255, 1) 52%
   );
   color: #fff;
   padding: 20px;
   text-align: center;
   border-radius: 9999px;
   border-style: none;
+  box-shadow: 2px 5px 10px 0px #418dff;
 }
 
 .mainButton:hover {
   opacity: 0.8;
+  box-shadow: 2px 5px 10px 0px #b941ff;
 }
 
 .mintCompletionArea {

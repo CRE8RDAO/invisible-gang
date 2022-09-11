@@ -216,10 +216,9 @@ const Home: NextPage = () => {
           )}
         </div>
       </div>
-      {/* Powered by thirdweb */}{" "}
       <img
-        src="/albert.jpg"
-        alt="thirdweb Logo"
+        src='/albert.jpg'
+        alt='thirdweb Logo'
         width={135}
         className={styles.buttonGapTop}
       />
