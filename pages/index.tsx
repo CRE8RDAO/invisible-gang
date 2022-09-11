@@ -14,7 +14,7 @@ import { useNetworkMismatch } from "@thirdweb-dev/react";
 import { useAddress, useMetamask } from "@thirdweb-dev/react";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import type { NextPage } from "next";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import styles from "../styles/Theme.module.css";
 
 // Put Your NFT Drop Contract address from the dashboard here
@@ -34,6 +34,20 @@ const Home: NextPage = () => {
 
   // The amount the user claims
   const [quantity, setQuantity] = useState(1); // default to 1
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const { current } = videoRef;
+    const handleMouseOverVideo = () => {
+      if (current) {
+        current.play();
+      }
+    };
+    document.addEventListener("click", handleMouseOverVideo);
+    return () => {
+      document.removeEventListener("click", handleMouseOverVideo);
+    };
+  });
 
   // Load contract metadata
   const { data: contractMetadata } = useContractMetadata(
@@ -98,6 +112,9 @@ const Home: NextPage = () => {
           <h1>{contractMetadata?.name}</h1>
           {/* Description of your NFT Collection */}
           <p className={styles.description}>{contractMetadata?.description}</p>
+          <video height='250px' ref={videoRef}>
+            <source src='/gangTrap.webm' type='video/webm' />
+          </video>
         </div>
 
         <div className={styles.imageSide}>
