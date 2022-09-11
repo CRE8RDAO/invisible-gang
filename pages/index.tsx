@@ -20,7 +20,8 @@ import styles from "../styles/Theme.module.css";
 // Put Your NFT Drop Contract address from the dashboard here
 // const myNftDropContractAddress = "0x389E3fe2D63C5092f0ceC7685a27416B80189262";
 // const myNftDropContractAddress = '0x322067594DBCE69A9a9711BC393440aA5e3Aaca1';
-const myNftDropContractAddress = "0xA2aF6Aa14AffAe52318B7115be2195759074DD00";
+// const myNftDropContractAddress = "0xA2aF6Aa14AffAe52318B7115be2195759074DD00";
+const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
 
 const Home: NextPage = () => {
   const nftDrop = useNFTDrop(myNftDropContractAddress);
@@ -86,7 +87,7 @@ const Home: NextPage = () => {
   // Function to mint/claim an NFT
   const mint = async () => {
     if (isOnWrongNetwork) {
-      switchNetwork && switchNetwork(ChainId.Rinkeby);
+      switchNetwork && switchNetwork(ChainId.Mainnet);
       return;
     }
 
@@ -233,12 +234,6 @@ const Home: NextPage = () => {
           )}
         </div>
       </div>
-      <img
-        src='/albert.jpg'
-        alt='thirdweb Logo'
-        width={135}
-        className={styles.buttonGapTop}
-      />
     </div>
   );
 };
