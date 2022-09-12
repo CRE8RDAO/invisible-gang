@@ -1,10 +1,8 @@
 .container {
-  margin-top: 96px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100vw;
 }
 
 .previewImage {
@@ -21,10 +19,9 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0 24px;
-  min-height: 720px;
+  padding: 24px;
   max-width: 95vw;
-  gap: 2%;
+  gap: 2rem;
   border: 1px solid var(--border-color);
   border-radius: 16px;
 }
@@ -166,10 +163,11 @@
 }
 
 /* On mobile, make the .mintInfoContainer stack vertically */
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 760px) {
   .mintInfoContainer {
     flex-direction: column;
     padding-bottom: 5%;
+    gap: 1rem;
   }
 
   .infoSide {
@@ -178,5 +176,10 @@
 
   .imageSide {
     width: 100%;
+  }
+
+  .image {
+    height: 250px;
+    object-fit: contain;
   }
 }
