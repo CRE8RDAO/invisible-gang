@@ -147,6 +147,9 @@ const Home: NextPage = () => {
     setIsMintingLoading(false);
   };
 
+  //TODO:
+  // 1. fix the img to Image
+  // 2. fix 403 error
   return (
     <div className={styles.container}>
       <div className={styles.mintInfoContainer}>

@@ -4,12 +4,11 @@ import { authOptions } from "./auth/[...nextauth]";
 import { Session } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
-
 export default async function generateNftSignature(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
   // Get the Next Auth session so we can use the accessToken as part of the discord API request
   const session: Session | null = await unstable_getServerSession(
     req,

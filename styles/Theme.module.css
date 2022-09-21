@@ -183,3 +183,15 @@
     object-fit: contain;
   }
 }
+
+.bigSpacerTop {
+  margin-top: 32px;
+}
+
+.secondaryButton {
+  cursor: pointer;
+  text-align: center;
+  padding: 5px;
+  color: #fff;
+  font-weight: 600;
+}
