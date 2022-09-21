@@ -4,6 +4,8 @@ import { authOptions } from "./auth/[...nextauth]";
 import { Session } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 
+const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
+
 export default async function generateNftSignature(
   req: NextApiRequest,
   res: NextApiResponse
@@ -16,10 +18,10 @@ export default async function generateNftSignature(
   );
 
   // Put Your Discord Server ID here
-  const discordServerId = "834227967404146718";
+  const discordServerId = "1012740847751663788";
 
   // Grab the claimer address (currently connected address) out of the request body
-  const { claimerAddress } = JSON.parse(req.body);
+  const { claimerAddress, quantity: quantityFromClient } = JSON.parse(req.body);
 
   // Read the access token from the session so we can use it in the below API request
   const accessToken = session?.accessToken;
@@ -58,13 +60,11 @@ export default async function generateNftSignature(
     throw new Error("You're missing PRIVATE_KEY in your .env.local file.");
   }
 
-  // Initialize the Thirdweb SDK on the serverside using the private key on the mumbai network
-  const sdk = ThirdwebSDK.fromPrivateKey(process.env.PRIVATE_KEY, "mumbai");
+  // Initialize the Thirdweb SDK on the serverside using the private key on the mainnet network
+  const sdk = ThirdwebSDK.fromPrivateKey(process.env.PRIVATE_KEY, "mainnet");
 
-  // Load the NFT Collection via it's contract address using the SDK
-  const nftCollection = await sdk.getNFTCollection(
-    "0xb5201E87b17527722A641Ac64097Ece34B21d10A"
-  );
+  // Load the NFT Drop via it's contract address using the SDK
+  const nftDrop = await sdk.getNFTDrop(myNftDropContractAddress);
 
   // Generate the signature for the NFT mint transaction
   //   const signedPayload = await nftCollection.erc721.signature.generate({
@@ -75,17 +75,24 @@ export default async function generateNftSignature(
   //       description: `An NFT rewarded for being a part of the thirdweb community!`,
   //     },
   //   });
-  const signedPayload = await nftCollection.signature.generate({
-    to: claimerAddress,
-    metadata: {
-      name: `thirdweb Discord Member NFT`,
-      image: `${session?.user?.image}`,
-      description: `An NFT rewarded for being a part of the thirdweb community!`,
-    },
-  });
+  if (nftDrop.signature) {
+    const signedPayload = await nftDrop.signature.generate({
+      to: claimerAddress,
+      quantity: quantityFromClient,
+      metadata: {
+        name: `thirdweb Discord Member NFT`,
+        image: `${session?.user?.image}`,
+        description: `An NFT rewarded for being a part of the thirdweb community!`,
+      },
+    });
 
-  // Return back the signedPayload (mint signature) to the client.
-  res.status(200).json({
-    signedPayload: JSON.parse(JSON.stringify(signedPayload)),
-  });
+    // Return back the signedPayload (mint signature) to the client.
+    res.status(200).json({
+      signedPayload: JSON.parse(JSON.stringify(signedPayload)),
+    });
+  } else {
+    res.status(500).json({
+      error: "No nftDrop.signature",
+    });
+  }
 }

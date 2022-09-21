@@ -62,8 +62,8 @@ export default function SignIn() {
 
         <p>
           <i>
-            (we check to see if you are a member of the thirdweb discord when
-            you try to mint).
+            (we check to see if you are a member of the AmpliFi discord when you
+            try to mint).
           </i>
         </p>
 
@@ -76,4 +76,5 @@ export default function SignIn() {
       </div>
     );
   }
+  return null;
 }

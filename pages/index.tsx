@@ -11,10 +11,12 @@ import {
   useCoinbaseWallet,
 } from "@thirdweb-dev/react";
 import { useNetworkMismatch } from "@thirdweb-dev/react";
-import { useAddress, useMetamask } from "@thirdweb-dev/react";
+import { useAddress, useMetamask, Web3Button } from "@thirdweb-dev/react";
+import { useSession } from "next-auth/react";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import type { NextPage } from "next";
 import { useState, useRef, useEffect } from "react";
+import SignIn from "../components/SignIn";
 import styles from "../styles/Theme.module.css";
 
 const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
@@ -22,12 +24,29 @@ const myNftDropContractAddress = "0x24F813e7c092afEe84463dA42cf3d213dA21E57A";
 const Home: NextPage = () => {
   const nftDrop = useNFTDrop(myNftDropContractAddress);
   const address = useAddress();
+  // Get the currently authenticated user's session (next auth + discord)
+  const { data: session } = useSession();
   const connectWithMetamask = useMetamask();
   const connectWithWalletConnect = useWalletConnect();
   const connectWithCoinbaseWallet = useCoinbaseWallet();
   const isOnWrongNetwork = useNetworkMismatch();
-  const claimNFT = useClaimNFT(nftDrop);
   const [, switchNetwork] = useNetwork();
+  const [isMintingLoading, setIsMintingLoading] = useState(false);
+
+  // check to show eligiblity for minting on the UI
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (session) {
+      setIsLoading(true);
+      fetch("api/check-is-in-server")
+        .then((res) => res.json())
+        .then((res) => {
+          setData(res || undefined);
+          setIsLoading(false);
+        });
+    }
+  }, [session]);
 
   // The amount the user claims
   const [quantity, setQuantity] = useState(1); // default to 1
@@ -80,25 +99,52 @@ const Home: NextPage = () => {
     return <div className={styles.container}>Loading...</div>;
   }
 
-  // Function to mint/claim an NFT
-  const mint = async () => {
+  const mintNft = async () => {
+    setIsMintingLoading(true);
+
     if (isOnWrongNetwork) {
       switchNetwork && switchNetwork(ChainId.Mainnet);
       return;
     }
 
-    claimNFT.mutate(
-      { to: address as string, quantity },
-      {
-        onSuccess: () => {
+    const signature = await fetch("/api/generate-signature", {
+      method: "POST",
+      body: JSON.stringify({
+        claimerAddress: address,
+        quantity: quantity,
+      }),
+    });
+
+    if (signature.status === 200) {
+      const json = await signature.json();
+      const signedPayload = json.signedPayload;
+
+      try {
+        const nft = await nftDrop.signature!.mint(signedPayload);
+        if (nft.id) {
           alert(`Successfully minted NFT${quantity > 1 ? "s" : ""}!`);
-        },
-        onError: (err: any) => {
-          console.error(err);
-          alert(err?.message || "Something went wrong");
-        },
+        }
+      } catch (e) {
+        console.error("Got no nftDrop contract");
       }
-    );
+
+      // claimNFT.mutate(
+      //   { to: address as string, quantity },
+      //   {
+      //     onSuccess: () => {
+      //       alert(`Successfully minted NFT${quantity > 1 ? "s" : ""}!`);
+      //     },
+      //     onError: (err: any) => {
+      //       console.error(err);
+      //       alert(err?.message || "Something went wrong");
+      //     },
+      //   }
+      // );
+    } else if (signature.status === 500) {
+      const json = await signature.json();
+      alert(json);
+    }
+    setIsMintingLoading(false);
   };
 
   return (
@@ -144,7 +190,7 @@ const Home: NextPage = () => {
               )}
             </div>
           </div>
-
+          <SignIn />
           {/* Show claim button or connect wallet button */}
           {address ? (
             // Sold out or show the claim button
@@ -184,26 +230,48 @@ const Home: NextPage = () => {
                   </button>
                 </div>
 
-                <button
-                  className={`${styles.mainButton} ${styles.spacerTop} ${styles.spacerBottom}`}
-                  onClick={mint}
-                  disabled={claimNFT.isLoading}
-                >
-                  {claimNFT.isLoading
-                    ? "Minting..."
-                    : `Trap & Tokenize${quantity > 1 ? ` ${quantity}` : ""}${
-                        activeClaimCondition?.price.eq(0)
-                          ? " (Free)"
-                          : activeClaimCondition?.currencyMetadata.displayValue
-                          ? ` (${formatUnits(
-                              priceToMint,
-                              activeClaimCondition.currencyMetadata.decimals
-                            )} ${
-                              activeClaimCondition?.currencyMetadata.symbol
-                            })`
-                          : ""
-                      }`}
-                </button>
+                {address && session ? (
+                  isLoading ? (
+                    <p>Checking...</p>
+                  ) : data ? (
+                    <Web3Button
+                      contractAddress={myNftDropContractAddress}
+                      action={() => mintNft()}
+                      colorMode='dark'
+                      accentColor='#F213A4'
+                    >
+                      {isMintingLoading
+                        ? "Minting..."
+                        : `Trap & Tokenize${
+                            quantity > 1 ? ` ${quantity}` : ""
+                          }${
+                            activeClaimCondition?.price.eq(0)
+                              ? " (Free)"
+                              : activeClaimCondition?.currencyMetadata
+                                  .displayValue
+                              ? ` (${formatUnits(
+                                  priceToMint,
+                                  activeClaimCondition.currencyMetadata.decimals
+                                )} ${
+                                  activeClaimCondition?.currencyMetadata.symbol
+                                })`
+                              : ""
+                          }`}
+                    </Web3Button>
+                  ) : (
+                    <div className={`${styles.main} ${styles.spacerTop}`}>
+                      <p>
+                        Looks like you are not a part of the Discord server.
+                      </p>
+                      <a
+                        className={styles.mainButton}
+                        href={`https://discord.gg/uAXpn3ph`}
+                      >
+                        Join Server
+                      </a>
+                    </div>
+                  )
+                ) : null}
               </>
             )
           ) : (
@@ -235,3 +303,46 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+// return (
+//   <div className={styles.container}>
+//     <SignIn />
+//     {address && session ? (
+//       isLoading ? (
+//         <p>Checking...</p>
+//       ) : data ? (
+//         <div className={`${styles.main} ${styles.spacerTop}`}>
+//           <h3>Hey {session?.user?.name} 👋</h3>
+//           <h4>Thanks for being a member of the Discord.</h4>
+//           <p>Here is a reward for you!</p>
+
+//           {/* NFT Preview */}
+//           <div className={styles.nftPreview}>
+//             <b>Your NFT:</b>
+//             <img src={session?.user.image} />
+//             <p>{session.user.name}&apos;s thirdweb Discord Member NFT</p>
+//           </div>
+
+//           <Web3Button
+//             contractAddress={contractAddress}
+//             colorMode="dark"
+//             accentColor="#F213A4"
+//             action={() => mintNft()}
+//           >
+//             Claim NFT
+//           </Web3Button>
+//         </div>
+//       ) : (
+//         <div className={`${styles.main} ${styles.spacerTop}`}>
+//           <p>Looks like you are not a part of the Discord server.</p>
+//           <a
+//             className={styles.mainButton}
+//             href={`https://discord.com/invite/thirdweb`}
+//           >
+//             Join Server
+//           </a>
+//         </div>
+//       )
+//     ) : null}
+//   </div>
+// );
