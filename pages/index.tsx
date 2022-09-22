@@ -6,7 +6,6 @@ import {
   useNFTDrop,
   useUnclaimedNFTSupply,
   useActiveClaimCondition,
-  useClaimNFT,
   useWalletConnect,
   useCoinbaseWallet,
 } from "@thirdweb-dev/react";
@@ -15,6 +14,7 @@ import { useAddress, useMetamask, Web3Button } from "@thirdweb-dev/react";
 import { useSession } from "next-auth/react";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import type { NextPage } from "next";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import SignIn from "../components/SignIn";
 import styles from "../styles/Theme.module.css";
@@ -147,9 +147,6 @@ const Home: NextPage = () => {
     setIsMintingLoading(false);
   };
 
-  //TODO:
-  // 1. fix the img to Image
-  // 2. fix 403 error
   return (
     <div className={styles.container}>
       <div className={styles.mintInfoContainer}>
@@ -165,10 +162,12 @@ const Home: NextPage = () => {
 
         <div className={styles.imageSide}>
           {/* Image Preview of NFTs */}
-          <img
+          <Image
             className={styles.image}
             src={contractMetadata?.image}
             alt={`${contractMetadata?.name} preview image`}
+            width='250px'
+            height='250px'
           />
 
           {/* Amount claimed so far */}
@@ -306,46 +305,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-// return (
-//   <div className={styles.container}>
-//     <SignIn />
-//     {address && session ? (
-//       isLoading ? (
-//         <p>Checking...</p>
-//       ) : data ? (
-//         <div className={`${styles.main} ${styles.spacerTop}`}>
-//           <h3>Hey {session?.user?.name} 👋</h3>
-//           <h4>Thanks for being a member of the Discord.</h4>
-//           <p>Here is a reward for you!</p>
-
-//           {/* NFT Preview */}
-//           <div className={styles.nftPreview}>
-//             <b>Your NFT:</b>
-//             <img src={session?.user.image} />
-//             <p>{session.user.name}&apos;s thirdweb Discord Member NFT</p>
-//           </div>
-
-//           <Web3Button
-//             contractAddress={contractAddress}
-//             colorMode="dark"
-//             accentColor="#F213A4"
-//             action={() => mintNft()}
-//           >
-//             Claim NFT
-//           </Web3Button>
-//         </div>
-//       ) : (
-//         <div className={`${styles.main} ${styles.spacerTop}`}>
-//           <p>Looks like you are not a part of the Discord server.</p>
-//           <a
-//             className={styles.mainButton}
-//             href={`https://discord.com/invite/thirdweb`}
-//           >
-//             Join Server
-//           </a>
-//         </div>
-//       )
-//     ) : null}
-//   </div>
-// );
