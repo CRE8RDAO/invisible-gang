@@ -40,18 +40,16 @@ export default async function generateNftSignature(
   // Filter all the servers to find the one we want
   // Returns undefined if the user is not a member of the server
   // Returns the server object if the user is a member
-  if (data.length && data.length > 0) {
-    const discordMembership = data?.find(
-      (server: any) => server.id === discordServerId
-    );
-    // Return an error response if the user is not a member of the server
-    // This prevents the signature from being generated if they are not a member
-    if (!discordMembership) {
-      res.status(403).send("User is not a member of the discord server.");
-      return;
-    }
-  } else {
-    res.status(403).send("Discord Membership data not found");
+  const discordMembership = data?.find(
+    // @ts-ignore
+    (server) => server.id === discordServerId
+  );
+
+  // Return an error response if the user is not a member of the server
+  // This prevents the signature from being generated if they are not a member
+  if (!discordMembership) {
+    res.status(403).send("User is not a member of the discord server.");
+    return;
   }
 
   // NOTE: Using environment variables to store your private key is unsafe and not best practice.
@@ -65,8 +63,8 @@ export default async function generateNftSignature(
   const sdk = ThirdwebSDK.fromPrivateKey(process.env.PRIVATE_KEY, "mainnet");
 
   // Load the NFT Drop via it's contract address using the SDK
-  const nftDrop = sdk.getNFTDrop(myNftDropContractAddress);
-  console.log(nftDrop);
+  const nftDrop = await sdk.getNFTDrop(myNftDropContractAddress);
+
   // Generate the signature for the NFT mint transaction
   //   const signedPayload = await nftCollection.erc721.signature.generate({
   //     to: claimerAddress,
