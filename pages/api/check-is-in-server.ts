@@ -27,18 +27,22 @@ export default async function checkIsInServer(
   // Parse the response as JSON
   const data = await response.json();
 
-  console.log(data);
+  if (data.length > 0) {
+    console.log("f");
+    console.log(data[0]);
+    // Filter all the servers to find the one we want
+    // Returns undefined if the user is not a member of the server
+    // Returns the server object if the user is a member
+    const thirdwebDiscordMembership = data.filter(
+      (server: any) => server.id === discordServerId
+    );
 
-  // Filter all the servers to find the one we want
-  // Returns undefined if the user is not a member of the server
-  // Returns the server object if the user is a member
-  const thirdwebDiscordMembership = data?.find(
-    // @ts-ignore
-    (server) => server.id === discordServerId
-  );
-
-  // Return undefined or the server object to the client.
-  res
-    .status(200)
-    .json({ thirdwebMembership: thirdwebDiscordMembership ?? undefined });
+    // Return undefined or the server object to the client.
+    res
+      .status(200)
+      .json({ thirdwebMembership: thirdwebDiscordMembership ?? undefined });
+  } else {
+    console.log("rip");
+    res.status(500).json({ data: "error" });
+  }
 }
