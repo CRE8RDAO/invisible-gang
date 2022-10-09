@@ -20,7 +20,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name='keywords' content='' />
       </Head>
       <Script
-        src='//cdn.jsdelivr.net/npm/amplifi.js@0/amplifi.min.js'
+        src='//cdn.jsdelivr.net/npm/amplifi.js@0.8.8/amplifi.min.js'
         strategy='afterInteractive'
       ></Script>
       <Component {...pageProps} />
