@@ -9,7 +9,12 @@ const activeChainId = ChainId.Mainnet;
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider desiredChainId={activeChainId}>
+    <ThirdwebProvider
+      desiredChainId={activeChainId}
+      chainRpc={{
+        1: process.env.NEXT_PUBLIC_ALCHEMY_URL,
+      }}
+    >
       <Head>
         <title>Invisible Gang</title>
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
